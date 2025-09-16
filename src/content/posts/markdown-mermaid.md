@@ -1,192 +1,249 @@
 ---
-title: Markdown Mermaid
-published: 2023-10-01
+title: 真空清洁题解
+published: 2025-09-16
+updated: 2025-09-16
 pinned: false
 description: A simple example of a Markdown blog post with Mermaid.
-tags: [Markdown, Blogging, Mermaid]
+tags: [ACM]
 category: Examples
 draft: false
 ---
-# Complete Guide to Markdown with Mermaid Diagrams
+### 问题分析
 
-This article demonstrates how to create various complex diagrams using Mermaid in Markdown documents, including flowcharts, sequence diagrams, Gantt charts, class diagrams, and state diagrams.
+首先，我们需要理解问题的核心。我们的目标是用最少的“真空清洁炸弹”清除所有灰尘。关键点在于：
+1.  **炸弹效果**：一个炸弹可以影响其投放点及其上下左右四个相邻格子。
+2.  **影响范围**：一个炸弹可能同时清洁多个污染区域（如果它们靠得很近）。
+3.  **灰尘清除**：每个炸弹在其覆盖范围内，对每个污染区域只能清除 1 单位的灰尘。
+4.  **目标**：清除所有区域的所有灰尘，求炸弹总数的最小值。
 
-## Flowchart Example
+这个问题的难点在于，在某个位置投放炸弹的决策会影响到多个污染区域的清洁进度，而这些决策之间是相互关联的。例如，为了清洁A区域，我们可以在位置P投放炸弹，但这可能也顺带清洁了B区域的一部分灰尘，从而影响我们后续为B区域所做的决策。
 
-Flowcharts are excellent for representing processes or algorithm steps.
+由于污染区域的数量 $k$ 非常小（最多为 10），这是一个强烈的信号，暗示我们可以使用一种依赖于 $k$ 指数级复杂度的算法，而对 $n$ 和 $m$ 的依赖应该是多项式级的。这种问题类型通常指向**状态压缩动态规划 (State Compression DP)**。
 
+### 算法核心：状态压缩 DP
 
+该代码采用的核心算法就是状态压缩 DP。让我们分解一下 DP 的要素：
 
+#### 1. 状态定义 (State)
 
-```mermaid
-graph TD
-    A[Start] --> B{Condition Check}
-    B -->|Yes| C[Process Step 1]
-    B -->|No| D[Process Step 2]
-    C --> E[Subprocess]
-    D --> E
-    subgraph E [Subprocess Details]
-        E1[Substep 1] --> E2[Substep 2]
-        E2 --> E3[Substep 3]
-    end
-    E --> F{Another Decision}
-    F -->|Option 1| G[Result 1]
-    F -->|Option 2| H[Result 2]
-    F -->|Option 3| I[Result 3]
-    G --> J[End]
-    H --> J
-    I --> J
-```
+我们如何描述“清除了多少灰尘”这个系统的当前状态呢？
+由于有 $k$ 个污染区域，每个区域的初始灰尘量 $a_i$ 不超过 3，我们可以用一个 $k$ 位的**四进制数**来表示状态。
 
-## Sequence Diagram Example
+-   这个四进制数的第 $i$ 位（从右往左数，从第 0 位开始）数字代表第 $i$ 个污染区域**已经被清除的灰尘量**。
+-   例如，假设有 $k=3$ 个区域，初始灰尘为 `val[0]=2`, `val[1]=1`, `val[2]=2`。
+    -   状态 `(000)_4` 表示所有区域都还没开始清洁。
+    -   状态 `(012)_4` 表示第 2 个区域清除了 0 单位，第 1 个区域清除了 1 单位，第 0 个区域清除了 2 单位灰尘。
 
-Sequence diagrams show interactions between objects over time.
+代码中使用一个整数来存储这个四进制数。`pows[i]` 数组预计算了 $4^i$ 的值，方便进行四进制的运算。一个状态整数 `S` 可以通过 `S / pows[i] % 4` 来获取其第 $i$ 位的值。
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant WebApp
-    participant Server
-    participant Database
+#### 2. DP 数组的含义
 
-    User->>WebApp: Submit Login Request
-    WebApp->>Server: Send Auth Request
-    Server->>Database: Query User Credentials
-    Database-->>Server: Return User Data
-    Server-->>WebApp: Return Auth Result
-    
-    alt Auth Successful
-        WebApp->>User: Show Welcome Page
-        WebApp->>Server: Request User Data
-        Server->>Database: Get User Preferences
-        Database-->>Server: Return Preferences
-        Server-->>WebApp: Return User Data
-        WebApp->>User: Load Personalized Interface
-    else Auth Failed
-        WebApp->>User: Show Error Message
-        WebApp->>User: Prompt Re-entry
-    end
-```
+`dp[S]`：表示达到状态 `S` 所需要的最少炸弹数量。
+我们的目标是求 `dp[ans]` 的值，其中 `ans` 是所有灰尘都被清除的最终状态。
 
-## Gantt Chart Example
+-   **初始状态**：`dp[0] = 0`。表示要达到“未清除任何灰尘”的状态，需要 0 个炸弹。其他所有 `dp[S]` 初始化为一个非常大的数（代表不可达）。
+-   **目标状态 (`ans`)**：这个状态表示每个污染区域 $i$ 都恰好清除了其初始的 $a_i$（即 `val[i]`）单位的灰尘。代码在读入数据时就计算好了这个目标状态的整数表示：`ans += w * pows[i]`。
 
-Gantt charts are perfect for displaying project schedules and timelines.
+#### 3. 状态转移 (Transition)
 
-```mermaid
-gantt
-    title Website Development Project Timeline
-    dateFormat  YYYY-MM-DD
-    axisFormat  %m/%d
-    
-    section Design Phase
-    Requirements Analysis      :a1, 2023-10-01, 7d
-    UI Design                 :a2, after a1, 10d
-    Prototype Creation        :a3, after a2, 5d
-    
-    section Development Phase
-    Frontend Development      :b1, 2023-10-20, 15d
-    Backend Development       :b2, after a2, 18d
-    Database Design           :b3, after a1, 12d
-    
-    section Testing Phase
-    Unit Testing              :c1, after b1, 8d
-    Integration Testing       :c2, after b2, 10d
-    User Acceptance Testing   :c3, after c2, 7d
-    
-    section Deployment
-    Production Deployment     :d1, after c3, 3d
-    Launch                    :milestone, after d1, 0d
-```
+状态转移的核心是模拟“投放一个炸弹”的过程。
+`dp[S_next] = min(dp[S_next], dp[S_current] + 1)`
 
-## Class Diagram Example
+我们从当前状态 `S_current` 出发，考虑在某个位置投放一个炸弹，会转移到哪个新状态 `S_next`。
 
-Class diagrams show the static structure of a system, including classes, attributes, methods, and their relationships.
+-   **在哪里投放炸弹？**
+    如果遍历网格中所有 $n \times m$ 的位置来尝试投放炸弹，效率太低。一个关键的观察是：只有那些能够影响到**至少一个**污染区域的炸弹位置才是有意义的。一个炸弹能影响 $(x, y)$，当且仅当它投放在以 $(x, y)$ 为中心的 5 个格子（自身及上下左右）之一。
+    因此，代码中使用 `map<pair<int, int>, vector<int>> mapp;` 来进行预处理。
+    -   **键 `pair<int, int>`**：一个可能投放炸弹的坐标。
+    -   **值 `vector<int>`**：一个列表，包含所有会被该位置炸弹影响的**污染区域的索引**。
+    这样，我们只需要遍历 `mapp` 中的这些有效位置即可。
 
-```mermaid
-classDiagram
-    class User {
-        +String username
-        +String password
-        +String email
-        +Boolean active
-        +login()
-        +logout()
-        +updateProfile()
+-   **如何计算 `S_next`？**
+    假设我们处于状态 `i` (`S_current`)，选择在 `mapp` 中的某个位置 `j.first` 投放一个炸弹。这个炸弹会影响 `j.second` 中列出的所有污染区域。
+    1.  令新状态 `a` (`S_next`) 的初值为 `i`。
+    2.  遍历受影响的污染区域 `o`。
+    3.  检查在状态 `i` 中，区域 `o` 的灰尘是否已完全清除（`check2` 函数）。如果还没有，我们就把状态 `a` 中代表区域 `o` 的那一位加 1（通过 `a += pows[o]` 实现）。
+    4.  所有受影响且未清理完的区域都处理完后，我们就得到了新状态 `a`。
+    5.  然后执行状态转移：`dp[a] = min(dp[a], dp[i] + 1);`。
+
+### 代码逐段解析
+
+1.  **`init()` 函数**
+    -   `pows[i] = pows[i-1] * 4;`: 计算 4 的幂，用于四进制状态表示。
+    -   `memset(dp, 127, sizeof(dp));`: 将 `dp` 数组初始化为一个极大值。`127` 在 `int` 类型中是一个非常大的正数。
+    -   `dp[0] = 0;`: 初始状态需要 0 个炸弹。
+
+2.  **主函数 `main()` - 输入和预处理**
+    -   读取 $n, m, k$。
+    -   循环 $k$ 次读取每个污染区域的信息 `x, y, w`。
+    -   `val[i] = w;`: 存储第 $i$ 个区域的初始灰尘量。
+    -   `ans += w * pows[i];`: 计算并累加得到最终目标状态的整数表示。
+    -   `for (int j = 0; j < 5; j++) ... mapp[{nt_x, nt_y}].push_back(i);`: 这是预处理的关键。对于每个污染区域 `i`，它计算出能影响到它的 5 个炸弹投放点，并在 `mapp` 中记录下来。例如，要清理 `(x,y)` 的灰尘，可以在 `(x,y)`, `(x+1,y)`, `(x-1,y)`, `(x,y+1)`, `(x,y-1)` 这五个位置投弹。代码反过来想：在 `(x+1,y)` 投弹，可以影响到 `(x,y)`。
+
+3.  **主函数 `main()` - DP 核心循环**
+    -   `for (int i = 0; i < pows[k]; i++)`: 遍历所有可能的状态 `i`。这个循环的顺序保证了当我们计算 `dp[a]` 时，`dp[i]` 的值已经是最优的（这类似于 BFS 的思想）。
+    -   `if (!check(i)) continue;`: `check(i)` 函数用来剪枝。它检查状态 `i` 是否合法。一个状态是合法的，当且仅当对于每个污染区域，已清除的灰尘量不能超过其初始总量。例如，如果 `val[0]=2`，那么状态中第 0 位的值不能是 3。
+    -   `for (auto j : mapp)`: 遍历所有有意义的炸弹投放位置。
+    -   `int a = i;`: 准备计算投放一次炸弹后的新状态。
+    -   `for (auto o : tem) ... a += pows[o];`: 计算新状态 `a`。`check2(a, o)` 确保我们不会为一个已经清理完毕的区域增加清理量。
+    -   `dp[a] = min(dp[a], dp[i] + 1);`: 执行 DP 状态转移。
+
+4.  **输出**
+    -   `cout << dp[ans];`: 所有计算完成后，`dp[ans]` 就存储了达到最终目标状态所需的最少炸弹数。
+
+### 样例 walkthrough
+
+输入:
+`5 5 3`
+`1 1 2`  (区域0)
+`2 2 1`  (区域1)
+`5 5 2`  (区域2)
+
+-   `k=3`, `val[0]=2, val[1]=1, val[2]=2`
+-   目标状态 `ans` = $2 \cdot 4^0 + 1 \cdot 4^1 + 2 \cdot 4^2 = 2 + 4 + 32 = 38$。 我们要求 `dp[38]`。
+-   `mapp` 会包含类似这样的条目：
+    -   `mapp[{1,2}]` -> `{0, 1}` (在(1,2)投弹影响区域0和1)
+    -   `mapp[{1,1}]` -> `{0, 1}`
+    -   `mapp[{2,2}]` -> `{0, 1}`
+    -   `mapp[{5,5}]` -> `{2}`
+    -   ... 等等
+
+DP过程（简化示意）:
+1.  `dp[0] = 0`。
+2.  从状态 `0` 出发，在 `(1,2)` 投弹。影响区域 0 和 1。新状态是 `a = 0 + 4^0 + 4^1 = 5`。`dp[5] = min(inf, dp[0]+1) = 1`。
+3.  从状态 `0` 出发，在 `(5,5)` 投弹。影响区域 2。新状态是 `a = 0 + 4^2 = 16`。`dp[16] = min(inf, dp[0]+1) = 1`。
+4.  ... 经过多轮迭代 ...
+5.  假设我们已经知道 `dp` 中某个状态 `i` 的值。例如，我们处于状态 `i`，再在 `(1,2)` 投弹一次。新状态 `a` 会在 `i` 的基础上，给区域 0 和 1 对应的位加 1。`dp[a] = min(dp[a], dp[i] + 1)`。
+6.  最终，程序会找到一条到达目标状态 `38` 的最短路径。例如：
+    -   `(0,0,0)_4` -> `(1,1,0)_4` [在(1,2)投弹1次] -> `(2,1,0)_4` [在(1,2)投弹1次] -> `(2,1,1)_4` [在(5,5)投弹1次] -> `(2,1,2)_4` [在(5,5)投弹1次]。
+    -   状态路径 (十进制): `0 -> 5 -> 9 -> 25 -> 38`
+    -   炸弹数：`1, 2, 3, 4`。
+    -   所以 `dp[38]=4`。
+
+这个方案对应于在 `(1,2)` 投 2 枚炸弹，在 `(5,5)` 投 2 枚炸弹，总共 4 枚。
+
+### 总结
+该解法是一个非常经典的状态压缩 DP 应用。它巧妙地将各个污染区域的清理进度压缩成一个整数状态，然后通过模拟投放炸弹这一动作，在状态之间建立转移关系，最终求得达到目标状态的最小代价（炸弹数）。预处理 `mapp` 极大地优化了状态转移的效率，避免了在庞大的网格上进行无效搜索。
+
+**关键理解**：
+
+-   $ans$是目标状态，$dp[ans]$就是清除所有灰尘所需的最少炸弹数
+
+## 完整代码实现
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 1e3 + 5, MAXN = 1049000; // 最大是 4^10
+
+map<pair<int, int>, vector<int>> mapp;
+// 用来存储图的信息：每个位置能影响的污染区域
+
+int py[5][2] = {{0, 0}, {0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+// 偏移量：自身及上下左右四个方向
+int n, m, k, pows[15], ans, val[N], dp[MAXN];
+// n,m,k 作用如题面，pows 用于存 4 的幂次，ans 用来记录目标状态
+// val 是每个污染区域的灰尘数量
+
+bool check(int x)
+{
+    // 检查状态x是否有效
+    for (int i = 0; i < k; i++)
+    {
+        // 1. 获取第 i 位的值
+        // x % 4 取出当前 x 最右边（最低位）的四进制位。
+        // 在第 i 次循环中，这对应于第 i 个污染区域。
+        if (x % 4 > val[i])
+            return 0; // 0 在C++中代表 false
+
+        // 2. 准备检查下一位
+        // x /= 4 整数除法，相当于将四进制数向右移动一位，
+        // 把刚刚检查完的位去掉，让下一位成为新的最低位。
+        x /= 4;
     }
+    // 3. 如果循环正常结束，说明所有位都合法
+    return 1; // 1 代表 true
+}
+
+bool check2(int x, int y)
+{
+    // 检查第y个污染区域是否还有剩余灰尘
+    // 1. 定位到第 y 位
+    // 通过 y 次除以4的操作，将原先的第 y 位移动到最低位。
+    for (int i = 0; i < y; i++)
+        x /= 4;
+
+    // 2. 获取第 y 位的值并比较
+    // 此时 x % 4 就是原来第 y 个区域的已清除灰尘量。
+    // 如果它等于初始量 val[y]，说明已经满了。
+    if (x % 4 == val[y])
+        return 0; // 返回 false，表示“满了，不能再加了”
     
-    class Article {
-        +String title
-        +String content
-        +Date publishDate
-        +Boolean published
-        +publish()
-        +edit()
-        +delete()
+    // 3. 如果没满
+    return 1; // 返回 true，表示“没满，可以继续清理”
+}
+void init()
+{
+    pows[0] = 1;
+    for (int i = 1; i < 11; i++)
+        pows[i] = pows[i - 1] * 4;
+    memset(dp, 127, sizeof(dp));
+    dp[0] = 0;
+    // 预处理
+}
+
+signed main()
+{
+    init();
+    cin >> n >> m >> k;
+
+    for (int i = 0; i < k; i++)
+    {
+        int x, y, w;
+        cin >> x >> y >> w;
+        val[i] = w;
+        ans += w * pows[i];
+
+        // 预处理所有能影响第i个污染区域的炸弹位置
+        for (int j = 0; j < 5; j++)
+        {
+            int nt_x = x + py[j][0], nt_y = y + py[j][1];
+            // 更新图的信息，把当前点能干涉到的点全部加上它
+            mapp[{nt_x, nt_y}].push_back(i);
+        }
     }
-    
-    class Comment {
-        +String content
-        +Date commentDate
-        +addComment()
-        +deleteComment()
+
+    // 状态压缩DP
+    // 1. 遍历所有可能的状态
+for (int i = 0; i < pows[k]; i++)
+{
+    // 2. 检查当前状态的合法性 (剪枝)
+    if (!check(i))
+        continue;
+
+    // 如果状态 i 合法，尝试从状态 i 出发，投放一枚炸弹
+
+    // 3. 遍历所有有效的炸弹投放位置
+    for (auto j : mapp)
+    {
+        // 4. 计算投放这枚炸弹后会达到的新状态 a
+        vector<int> tem = j.second; // 获取该炸弹能影响的区域列表
+        int a = i; // 新状态 a 的基础是当前状态 i
+
+        for (auto o : tem) // 遍历所有受影响的区域 o
+        {
+            // 如果区域 o 还没被清理完
+            if (!check2(a, o)) // 注意这里检查的是 a 而非 i
+                continue;
+            // 那么就在新状态 a 中，将区域 o 的清理量+1
+            a += pows[o];
+        }
+
+        // 5. 更新到达新状态 a 的最小炸弹数
+        dp[a] = min(dp[a], dp[i] + 1);
     }
-    
-    class Category {
-        +String name
-        +String description
-        +addArticle()
-        +removeArticle()
-    }
-    
-    User "1" -- "*" Article : writes
-    User "1" -- "*" Comment : posts
-    Article "1" -- "*" Comment : has
-    Article "1" -- "*" Category : belongs to
+}
+    cout << dp[ans];
+    return 0;
+}
 ```
-
-## State Diagram Example
-
-State diagrams show the sequence of states an object goes through during its life cycle.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Draft
-    
-    Draft --> UnderReview : submit
-    UnderReview --> Draft : reject
-    UnderReview --> Approved : approve
-    Approved --> Published : publish
-    Published --> Archived : archive
-    Published --> Draft : retract
-    
-    state Published {
-        [*] --> Active
-        Active --> Hidden : temporarily hide
-        Hidden --> Active : restore
-        Active --> [*]
-        Hidden --> [*]
-    }
-    
-    Archived --> [*]
-```
-
-## Pie Chart Example
-
-Pie charts are ideal for displaying proportions and percentage data.
-
-```mermaid
-pie title Website Traffic Sources Analysis
-    "Search Engines" : 45.6
-    "Direct Access" : 30.1
-    "Social Media" : 15.3
-    "Referral Links" : 6.4
-    "Other Sources" : 2.6
-```
-
-## Conclusion
-
-Mermaid is a powerful tool for creating various types of diagrams in Markdown documents. This article demonstrated how to use flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, and pie charts. These diagrams can help you express complex concepts, processes, and data structures more clearly.
-
-To use Mermaid, simply specify the mermaid language in a code block and describe the diagram using concise text syntax. Mermaid will automatically convert these descriptions into beautiful visual diagrams.
-
-Try using Mermaid diagrams in your next technical blog post or project documentation - they will make your content more professional and easier to understand!
