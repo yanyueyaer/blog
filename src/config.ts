@@ -22,8 +22,8 @@ import { getTranslateLanguageFromConfig } from "./utils/language-utils";
 const SITE_LANG = "en"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
 
 export const siteConfig: SiteConfig = {
-	title: "yanyueyaer",
-	subtitle: "One demo website",
+	title: "LucienElio",
+	subtitle: "LucienElio's Blog",
 
 	lang: SITE_LANG,
 
@@ -46,33 +46,35 @@ export const siteConfig: SiteConfig = {
 		// 支持单张图片或图片数组，当数组长度 > 1 时自动启用轮播
 		src: {
 			desktop: [
-				"/assets/desktop-banner/d1.webp",
-				"/assets/desktop-banner/d2.webp",
-				"/assets/desktop-banner/d3.webp",
-				"/assets/desktop-banner/d4.webp",
-				"/assets/desktop-banner/d5.webp",
-				"/assets/desktop-banner/d6.webp",
-				"/assets/desktop-banner/d7.webp",
-				"/assets/desktop-banner/d8.webp",
+				"/assets/desktop-banner/d1.jpg",
+				"/assets/desktop-banner/d2.JPG",
+				"/assets/desktop-banner/d3.JPG",
+				"/assets/desktop-banner/d4.JPG",
+				"/assets/desktop-banner/d5.JPG",
+				"/assets/desktop-banner/d6.JPG",
+				"/assets/desktop-banner/d7.JPG",
+				"/assets/desktop-banner/d8.JPG",
+				"/assets/desktop-banner/d9.JPG",
 			], // 桌面横幅图片
 			mobile: [
-				"/assets/mobile-banner/m1.webp",
-				"/assets/mobile-banner/m2.webp",
-				"/assets/mobile-banner/m3.webp",
-				"/assets/mobile-banner/m4.webp",
-				"/assets/mobile-banner/m5.webp",
-				"/assets/mobile-banner/m6.webp",
-				"/assets/mobile-banner/m7.webp",
-				"/assets/mobile-banner/m8.webp",
+				"/assets/mobile-banner/m1.JPG",
+				"/assets/mobile-banner/m2.JPG",
+				"/assets/mobile-banner/m3.JPG",
+				"/assets/mobile-banner/m4.JPG",
+				"/assets/mobile-banner/m5.JPG",
+				"/assets/mobile-banner/m6.JPG",
+				"/assets/mobile-banner/m7.JPG",
+				"/assets/mobile-banner/m8.JPG",
+				"/assets/mobile-banner/m9.JPG",
 			], // 移动横幅图片
 		}, // 使用本地横幅图片
 
-		position: "center", // 等同于 object-position，仅支持 'top', 'center', 'bottom'。默认为 'center'
+		position: "top", // 等同于 object-position，仅支持 'top', 'center', 'bottom'。默认为 'center'
 
 		carousel: {
 			enable: true, // 为 true 时：为多张图片启用轮播。为 false 时：从数组中随机显示一张图片
 
-			interval: 1.5, // 轮播间隔时间（秒）
+			interval: 10, // 轮播间隔时间（秒）
 		},
 
 		// PicFlow API支持(智能图片API)
@@ -86,7 +88,7 @@ export const siteConfig: SiteConfig = {
 
 		homeText: {
 			enable: true, // 在主页显示自定义文本
-			title: "Beautiful yanyueyaer!", // 主页横幅主标题
+			title: "Beautiful LucienElio!", // 主页横幅主标题
 
 			subtitle: [
 				"A Showcase Demo Site",
@@ -155,7 +157,7 @@ export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
 	position: "center", // 壁纸位置，等同于 object-position
 	carousel: {
 		enable: true, // 启用轮播
-		interval: 1, // 轮播间隔时间（秒）
+		interval: 10, // 轮播间隔时间（秒）
 	},
 	zIndex: -1, // 层级，确保壁纸在背景层
 	opacity: 0.8, // 壁纸透明度
@@ -174,7 +176,7 @@ export const navBarConfig: NavBarConfig = {
 			children: [
 				{
 					name: "GitHub",
-					url: "https://github.com/matsuzaka-yuki/yanyueyaer",
+					url: "https://github.com/yanyueyaer",
 					external: true,
 					icon: "fa6-brands:github",
 				},
@@ -186,7 +188,7 @@ export const navBarConfig: NavBarConfig = {
 				},
 				{
 					name: "Gitee",
-					url: "https://gitee.com/matsuzakayuki/yanyueyaer",
+					url: "https://gitee.com/yanyueyaer",
 					external: true,
 					icon: "mdi:git",
 				},
@@ -239,7 +241,7 @@ export const navBarConfig: NavBarConfig = {
 
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/avatar.png", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
-	name: "yanyueyaer",
+	name: "LucienElio",
 	bio: "The world is big, you have to go and see",
 	links: [
 		{
@@ -299,7 +301,7 @@ export const announcementConfig: AnnouncementConfig = {
 };
 
 export const musicPlayerConfig: MusicPlayerConfig = {
-	enable: true, // 启用音乐播放器功能
+	enable: false, // 启用音乐播放器功能
 };
 
 export const footerConfig: FooterConfig = {
@@ -447,7 +449,7 @@ export const sakuraConfig: SakuraConfig = {
 
 // Pio 看板娘配置
 export const pioConfig: import("./types/config").PioConfig = {
-	enable: true, // 启用看板娘
+	enable: false, // 启用看板娘
 	models: ["/pio/models/pio/model.json"], // 默认模型路径
 	position: "left", // 默认位置在右侧
 	width: 280, // 默认宽度
@@ -455,7 +457,7 @@ export const pioConfig: import("./types/config").PioConfig = {
 	mode: "draggable", // 默认为可拖拽模式
 	hiddenOnMobile: true, // 默认在移动设备上隐藏
 	dialog: {
-		welcome: "Welcome to yanyueyaer Website!", // 欢迎词
+		welcome: "Welcome to LucienElio Website!", // 欢迎词
 		touch: [
 			"What are you doing?",
 			"Stop touching me!",
