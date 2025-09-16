@@ -1,7 +1,7 @@
 ---
 title: My first blog
 published: 2025-09-16
-updated: 2024-11-29
+updated: 2025-09-16
 description: 'Read more about Markdown features in Mizuki'
 image: ''
 tags: [Demo, Example, Markdown, mizuki]
