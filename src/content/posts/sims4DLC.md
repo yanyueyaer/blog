@@ -1,5 +1,5 @@
 ---
-title: 模拟人生DLC
+title: 模拟人生DLC sim4
 published: 2025-10-11
 tags: [模拟人生]
 category: Examples
