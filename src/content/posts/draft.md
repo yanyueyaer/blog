@@ -1,24 +1,41 @@
 ---
-title: Draft Example
-published: 2022-07-01
-tags: [Markdown, Blogging, Demo]
+title: 模拟人生DLC
+published: 2025-10-11
+tags: [模拟人生]
 category: Examples
 draft: true
 ---
 
-# This Article is a Draft
+（2025.10.11 更新）
 
-This article is currently in a draft state and is not published. Therefore, it will not be visible to the general audience. The content is still a work in progress and may require further editing and review.
+## EA DLC Unlocker
 
-When the article is ready for publication, you can update the "draft" field to "false" in the Frontmatter:
+**下载地址**：https://anadius.su/
+**操作步骤**：
 
-```markdown
----
-title: Draft Example
-published: 2024-01-11T04:40:26.381Z
-tags: [Markdown, Blogging, Demo]
-category: Examples
-draft: false
----
+1. 下载并解压 EA DLC Unlocker，确保启动过一次游戏。
+2. 运行 `setup.bat`
 
+## DLC Updater
 
+**下载地址**：https://anadius.su/
+**操作步骤**：
+
+1. 下载并解压 Sims 4 Updater。
+2. 运行 `sims-4-updater-v1.4.7.exe`
+
+## 服装扩展包
+
+**下载地址**：https://www.patreon.com/
+**安装方式**：
+
+1. 下载 ELC 资源包。
+2. 解压 `.package` 文件至：Documents\Electronic Arts\The Sims 4\Mods
+
+## 绅士包
+
+**下载地址**：https://wickedwhimsmod.com/download
+**安装方式**：
+
+1. 下载绅士包合集。
+2. 解压 `.package` 与 `.ts4script` 文件至 Mods 文件夹。
