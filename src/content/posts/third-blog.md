@@ -1,8 +1,8 @@
 ---
-title: Markdown Tutorial
+title: 合并队列题解
 published: 2025-01-20
 pinned: true
-description: A simple example of a Markdown blog post.
+description: 题解修改
 tags: [Markdown, Blogging]
 category: Examples
 licenseName: "Unlicensed"
@@ -10,6 +10,7 @@ author: emn178
 sourceLink: "https://github.com/emn178/markdown"
 draft: false
 ---
+
 完善程序（一）合并序列
 有两个长度为 N 的单调不降序列 A 和 B，序列的每个元素都是小于 10^9 的非负整数。在 A 和 B 中各取一个数相加可以得到 N^2 个和，求其中第 k 小的和。
 
