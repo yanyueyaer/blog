@@ -1,9 +1,12 @@
 ---
-title: 模拟人生DLC sim4
+title: 模拟人生
 published: 2025-10-12
-tags: [模拟人生]
-category: Examples
-draft: true
+updated: 2025-10-12
+description: "Read more about Markdown features in Mizuki"
+image: ""
+tags: [love]
+category: "Examples"
+draft: false
 ---
 
 （2025.10.12 更新）
